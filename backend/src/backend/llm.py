@@ -13,6 +13,7 @@ client = OpenAI(
     base_url="https://ellm.nrp-nautilus.io/v1",
 )
 
+#
 
 def generate_llm_response(
     messages: List[dict[str, Any]], model: str = "gemma3"
