@@ -11,6 +11,19 @@ class Conversation(SQLModel, table=True):
 
     messages: List["Message"] = Relationship(back_populates="conversation")
 
+class ConversationRead(SQLModel):
+    id: int
+    title: Optional[str]
+    created_at: datetime
+    messages: List["Message"]
+    
+
+class MessageRead(SQLModel):
+    id: int
+    role: str
+    content: str
+    created_at: datetime
+
 
 class Message(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -24,3 +37,7 @@ class Message(SQLModel, table=True):
     conversation: Optional[Conversation] = Relationship(
         back_populates="messages"
     )
+
+class MessageCreate(SQLModel):
+    role: str
+    content: str
