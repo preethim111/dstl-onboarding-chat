@@ -23,34 +23,66 @@ function App() {
   const [currentConversationId, setCurrentConversationId] = useState<number | null>(null);
 
   // Load conversations for sidebar and persist current convo messages upon refresh
-  useEffect(() => {
-    fetch(`${API_BASE_URL}/conversations/`)
-      .then((res) => res.json())
-      .then((data) => {
-        setConversations(data);
+  // useEffect(() => {
+  //   fetch(`${API_BASE_URL}/conversations/`)
+  //     .then((res) => res.json())
+  //     .then((data) => {
+  //       setConversations(data);
   
-        // If there are any conversations, auto-load the last one
-        if (data.length > 0) {
-          const last = data[data.length - 1]; // or data[0] for the first
-          setCurrentConversationId(last.id);
+  //       // If there are any conversations, auto-load the last one
+  //       if (data.length > 0) {
+  //         const last = data[data.length - 1]; // or data[0] for the first
+  //         setCurrentConversationId(last.id);
   
-          fetch(`${API_BASE_URL}/conversations/${last.id}`)
-            .then((res) => res.json())
-            .then((conv) => setMessages(conv.messages || []));
-        }
-      });
-  }, []);
+  //         fetch(`${API_BASE_URL}/conversations/${last.id}`)
+  //           .then((res) => res.json())
+  //           .then((conv) => setMessages(conv.messages || []));
+  //       }
+  //     });
+  // }, []);
 
-  const loadConversation = (id: number) => {
-    setCurrentConversationId(id);
-
-    fetch(`${API_BASE_URL}/conversations/${id}`)
-    .then((res) => res.json())
-    .then((data) => {
-      console.log('loaded conversation', data);  
-      setMessages(data.messages || []);
-    });
+  const loadLastConversation = async (id: number) => {
+    const res = await fetch(`${API_BASE_URL}/conversations/${id}`);
+    const conv = await res.json();
+    setMessages(conv.messages || []);
   };
+
+  useEffect(() => {
+    const loadConversations = async () => {
+      const res = await fetch(`${API_BASE_URL}/conversations/`);
+      const data = await res.json();
+      setConversations(data);
+  
+      if (data.length > 0) {
+        const last = data[data.length - 1];
+        setCurrentConversationId(last.id);
+        await loadLastConversation(last.id);
+      }
+    };
+  
+    loadConversations();
+  }, []);
+  
+
+  // const loadConversation = (id: number) => {
+  //   setCurrentConversationId(id);
+
+  //   fetch(`${API_BASE_URL}/conversations/${id}`)
+  //   .then((res) => res.json())
+  //   .then((data) => {
+  //     console.log('loaded conversation', data);  
+  //     setMessages(data.messages || []);
+  //   });
+  // };
+
+  const loadConversation = async (id: number) => {
+    setCurrentConversationId(id);
+  
+    const res = await fetch(`${API_BASE_URL}/conversations/${id}`);
+    const data = await res.json();
+    setMessages(data.messages || []);
+  };
+  
 
   // New Chat button: clear messages + deselect conversation
   const handleNewChat = () => {
@@ -141,7 +173,7 @@ function App() {
                 currentConversationId === conv.id ? 'bg-gray-700' : 'hover:bg-gray-800'
               }`}
             >
-              {conv.title || `Conversation ${conv.id}`}
+              {conv.title}
             </button>
           ))}
 
